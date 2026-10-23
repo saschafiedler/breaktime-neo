@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Stopwatch case: ring, crown on top, button at the upper right. -->
+  <g fill="#FFFFFF">
+    <path fill-rule="evenodd" d="M512 236a312 312 0 1 0 0.001 0zM512 300a248 248 0 1 1 -0.001 0z"/>
+    <rect x="480" y="168" width="64" height="88"/>
+    <rect x="420" y="116" width="184" height="72" rx="36"/>
+    <rect x="-58" y="-34" width="116" height="68" rx="24" transform="translate(758 302) rotate(-45)"/>
+  </g>
+</svg>

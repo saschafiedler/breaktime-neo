@@ -1,0 +1,31 @@
+.DS_Store
+
+# Xcode
+DerivedData/
+build/
+*.xcresult
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+*.hmap
+xcuserdata/
+*.xcuserstate
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+Package.resolved
+
+# Claude – lokale, nutzerspezifische Einstellungen
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Sync-Konfliktkopien
+* 2.*
+
+# Laufzeitprofile beim direkten Start des Debug-Builds
+*.profraw
+
+# Private maintainer notes (German working notes, not published)
+notes/

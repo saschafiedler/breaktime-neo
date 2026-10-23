@@ -1,0 +1,45 @@
+# Design decisions
+
+The binding record of how BreakTime Neo behaves and why. When code and this file disagree, fix one of them. Each value lives in exactly one place in the code, listed in the last column.
+
+## Foundations
+
+| ID | Decision |
+|---|---|
+| N1 | Clean-room re-creation of BreakTime: features, interaction flow, layout and UI labels follow the original; code, icons, graphics and sounds are original work. Rules in [AGENTS.md](../AGENTS.md), provenance in [CLEAN-ROOM.md](CLEAN-ROOM.md). |
+| N2 | Open source under the MIT license. |
+| N3 | Swift 6, SwiftUI for content, AppKit for the status item, popover, windows and break screen. macOS 27 or later, Apple silicon only. Motivation: BreakTime is an Intel-only app and runs on Apple silicon only through Rosetta; older Macs can keep using it. |
+| N4 | Menu bar app without a Dock icon (`LSUIElement`). |
+| N5 | The core is a state machine — working → warning → break → working, plus away and paused — in its own Swift package with time passed in, so tests can fast-forward. |
+| N6 | Idle time from `CGEventSource` (no Accessibility permission), sleep and screen lock from system notifications, start at login through `SMAppService`. |
+| N7 | Out of scope for now: statistics, sync, iOS, Mac App Store. |
+
+## Behaviour and defaults
+
+| ID | Topic | Decision | Code |
+|---|---|---|---|
+| S1 | Name | “BreakTime Neo”, a tribute to the original; not affiliated with Excited Pixel. Bundle ID `com.saschafiedler.breaktimeneo`. | `PRODUCT_NAME`, `AppInfo.name` |
+| S2 | Defaults | 20 minutes of work, 20-second breaks (the 20-20-20 rule), 10-second countdown, away after 5 minutes. | `BreakSettings.standard` |
+| S3 | Settings window | BreakTime's layout, compact: right-aligned labels; state text (“BreakTime Neo is on/off”) next to the switch, since the system switch has no ON/OFF lettering; time between breaks, length of break, enforce break, disable “In a Minute”, start at login, play sounds; “Advanced” folds out magic reschedule (threshold, video), countdown, all displays, time in menu bar, version and a thank-you to BreakTime. Sliders are non-linear: time between breaks 1–120 minutes (field 1–240), length of break 5 seconds to 30 minutes (field up to 60 minutes); seconds below one minute, whole minutes from 60 seconds on. Opens centred and remembers where it was moved. | `SettingsView`, `SettingsWindowController`, `PowerScale`, `TimeSnap`, `DurationDisplay` |
+| S4 | Away (magic reschedule) | An absence of at least the threshold counts as a break; the countdown restarts from the moment of return. A separate threshold rather than “as long as a break”, so that quiet reading does not count as a break when breaks are short. Can be turned off. | `BreakEngine.comeBack` |
+| S5 | Short lock or sleep | Shorter than the threshold: the schedule stays. If the break became due meanwhile, the countdown comes first. Lock and sleep count even with idle detection off. | `BreakEngine.comeBack` |
+| S6 | Lock during a break | The break screen stays. Back before the end: the break continues. Away long enough or break over: it counts as done, with the end sound. | `BreakEngine` |
+| S7 | Moving the break | Slider in the popover, non-linear (cubic): the right end is one work interval, 1 second sits just right of the left end, the last minute takes about a third of the width. Seconds below one minute, whole minutes above; the left end starts the break now. Dragging to the right end skips the next break. In the break window, “In a Minute” with an arrow for 5 and 15 minutes. | `PopoverView`, `PowerScale`, `BreakEngine.scheduleBreak` |
+| S8 | On/off | Switch in the popover and the settings (off until switched on again). Right-click on the icon adds: start a break now, skip the next break, turn off for 1 hour, 3 hours or until 6:00 tomorrow. Off is not kept across app restarts. | `StatusItemController` |
+| S9 | Menu bar icon | Icon only: a stopwatch with crown and side button whose face fills up as the break approaches; full during a break, dashed when away, empty and dimmed when off. Optional time next to it, in a fixed-width field so neither icon nor popover jumps. | `StatusIcon`, `StatusItemController` |
+| S10 | Break screen | Slight dimming (45 % black) on all displays or the main one, shown and hidden instantly. On top, a Liquid Glass panel (`NSGlassEffectView`, same corner radius as the popover) with the title, elapsed time (semibold, accent colour), remaining time (light, secondary), a progress bar, “In a Minute” (arrow: 1/5/15 minutes) and “Done”. Shortcuts ⎋, ⇧⎋, ⇧⌘⎋; no shortcut for “Done”, because the user may still be typing. The panel takes the keyboard during the break without activating the app. | `OverlayController`, `BreakWindowView` |
+| S11 | Sounds | One switch. Start: system sound “Blow”; end: “Glass”, only when a break ends normally. | `AppSettings`, `BreakController` |
+| S12 | Notification before a break | Removed to keep the settings simple. | — |
+| S13 | Signing | Development builds: automatic signing, hardened runtime, no sandbox. Releases need a Developer ID and notarisation. | Project |
+| S14 | Language | English and German, following the system language; any other language gets English. English is the development language, German lives in the string catalog. English labels follow BreakTime (“In a Minute”, “Done”, “Time between breaks”). Code, comments and project documents are in English. | `Localizable.xcstrings`, `developmentRegion = en` |
+| S15 | App Nap | The app holds an activity assertion so macOS does not throttle the timer; idle sleep stays allowed. | `BreakController.start` |
+| S16 | Structure and focus | AppKit entry point (`AppDelegate.main`) instead of SwiftUI's `MenuBarExtra`, for a real popover at the icon. The popover opens without activating the app (it is a non-activating panel), so the keyboard stays with the app in use; a click elsewhere closes it. Only the settings window activates the app, and closing it hands focus back. A small main menu provides ⌘Q, ⌘W and the edit shortcuts. | `BreakTimeNeoApp.swift`, `StatusItemController`, `SettingsWindowController` |
+| S17 | Not (yet) carried over | BreakTime options without a counterpart: choice of Dock/menu bar icon, “auto dismiss”, scripts at break start and end. | — |
+| S18 | Video counts as activity | While an app keeps the display awake (power assertion `PreventUserIdleDisplaySleep`, as video players and calls do), missing input does not count as being away. Read through IOKit without screen access or permissions, only after 10 s without input. Can be turned off. Limitation: keep-awake tools such as `caffeinate -d` count as well. | `ActivityMonitor.isDisplayKeptAwake`, `BreakController` |
+| S19 | Displays | “All displays” switch, on by default; off dims only the main display (the one with the menu bar). The break panel always appears on the main display. | `OverlayController`, `AppSettings` |
+| S20 | Enforced breaks | As in BreakTime, “Enforce break” and “Disable In a Minute” (only with enforce). Buttons that are not allowed are hidden rather than greyed out. Enforced: the app comes to the front, app switching (⌘⇥) and the Dock are blocked, the dimming catches all clicks. The emergency exit ⌃⌥⌘⎋ always ends the break and is shown in the panel; Force Quit (⌥⌘⎋) stays available. | `OverlayController`, `BreakWindowView`, `AppSettings` |
+| S21 | Countdown | Ten seconds before a break the same popover opens by itself and counts down; it closes when the break starts. It does not take the keyboard. So that the switch and slider still look active, the popover's window class answers the private `hasKeyAppearance` with yes; if a future macOS drops it, the popover only looks inactive. The switch keeps meaning on/off for the whole app; skipping works through the slider. | `StatusItemController`, `KeyAppearance` |
+| S22 | Look and feel | Standard macOS 27 with Liquid Glass: system components (`NSPopover`, `NSGlassEffectView`, switches, sliders, checkboxes, glass buttons), SF Pro throughout, the system accent colour (the app defines none). No fade animations. As compact as the original. | Everywhere |
+| S23 | License | MIT: simple, allows any use with attribution. | `LICENSE` |
+| S24 | App icon | Icon Composer icon with Liquid Glass layers: dark blue gradient, glass stopwatch with crown and side button, a blue glass segment filling three quarters of the face. Takes up the motifs of the original icon (stopwatch, blue, dark ground) without tracing it, and matches the menu bar icon. macOS renders the light, dark and tinted variants. | `BreakTimeNeo/AppIcon.icon` |
+| S25 | Timing | The one-second heartbeat lands exactly on every change (countdown start, break start, break end, end of a timed pause), and the break windows are built during the countdown. Measured: a break starts about 0.02 s after it is due and is on screen about 0.01 s later. Progress bar and clock step together once per second. | `BreakEngine.nextBoundary`, `BreakController.scheduleNextTick`, `OverlayController.prepare` |
