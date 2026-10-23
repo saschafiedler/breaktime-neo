@@ -32,6 +32,7 @@ BreakTimeNeoCore/          Swift package with the break logic and its tests
 BreakTimeNeo.xcodeproj     Xcode project, scheme BreakTimeNeo
 docs/                      DECISIONS.md, CLEAN-ROOM.md
 scripts/install-local.sh   Release build into /Applications
+scripts/release.sh         Signed, notarised release on Forgejo and GitHub
 ```
 
 ## Architecture
@@ -69,6 +70,19 @@ Launch arguments (Debug builds):
 - `--snapshots <folder>`: writes PNGs of the menu bar icon and popover in every state, the break window and the settings, plus `report.txt`, then quits. Needs no screen-recording permission. Glass effects do not render there.
 
 Installing for daily use: `scripts/install-local.sh` (builds a Release and copies it to `/Applications`).
+
+## Releasing
+
+Versions follow Semantic Versioning (`MARKETING_VERSION`); the build number (`CURRENT_PROJECT_VERSION`) goes up by one for every release. Each version has a `CHANGELOG.md` section and an annotated tag `vX.Y.Z`.
+
+Forgejo is the primary repository (`origin`); a push mirror copies every push to GitHub. Never push to GitHub directly. After the tag is pushed to Forgejo:
+
+```bash
+scripts/release.sh 1.0.1            # build from the tag, sign with Developer ID, notarise, staple, zip
+scripts/release.sh 1.0.1 --publish  # create the release on Forgejo and GitHub with that zip
+```
+
+The script needs a "Developer ID Application" certificate, the notarytool keychain profile `notary`, and `tea` (login `forgejo`) and `gh` signed in. The maintainer tries the zip before publishing.
 
 ## Do not
 
