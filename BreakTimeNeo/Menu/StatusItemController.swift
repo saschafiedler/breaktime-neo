@@ -15,6 +15,10 @@ final class StatusItemController: NSObject {
     private var widthTemplate: String?
     private var outsideClickMonitor: Any?
     private var menuActions: MenuActions?
+    /// The popover was opened by the countdown, not by a click.
+    private var showsCountdown = false
+    /// What the countdown popover hangs from instead of the menu bar item.
+    private let countdownAnchor = AnchorPanel()
 
     init(controller: BreakController, openSettings: @escaping () -> Void) {
         self.controller = controller
@@ -70,11 +74,15 @@ final class StatusItemController: NSObject {
             case .warning:
                 // Like BreakTime: the same popover opens by itself and counts
                 // the last seconds down, without taking the keyboard away.
-                showPopover()
+                showPopover(countdown: true)
             case .onBreak:
                 popover.performClose(nil)
             default:
-                break
+                // Postponed or switched off during the countdown: from now on
+                // the popover behaves as if opened by a click.
+                if showsCountdown {
+                    endCountdown()
+                }
             }
             lastKind = status.kind
         }
@@ -132,17 +140,44 @@ final class StatusItemController: NSObject {
         }
     }
 
-    /// Shows the popover without activating the app, so the app the user
-    /// works in keeps the keyboard (the popover is a non-activating panel).
-    /// The same popover opens on a click and by itself before a break.
-    private func showPopover() {
+    /// Shows the popover without activating the app. The same popover opens
+    /// on a click and by itself before a break. Opened by the countdown, it
+    /// leaves the keyboard with the app the user is typing in and stays until
+    /// the break starts, whatever the user clicks meanwhile.
+    private func showPopover(countdown: Bool = false) {
         guard let button = statusItem.button, !popover.isShown else { return }
-        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        showsCountdown = countdown
+        popover.behavior = countdown ? .applicationDefined : .transient
+        if countdown, let itemWindow = button.window, let anchor = countdownAnchor.contentView {
+            // A popover shown from the menu bar item takes the keyboard from
+            // the app in front, even while this app stays inactive and no
+            // window of it is key (measured on macOS 27). Shown from an
+            // ordinary window it does not, so the countdown popover hangs from
+            // an invisible, click-through window right over the item.
+            countdownAnchor.setFrame(itemWindow.convertToScreen(button.convert(button.bounds, to: nil)), display: false)
+            countdownAnchor.orderFrontRegardless()
+            popover.show(relativeTo: anchor.bounds, of: anchor, preferredEdge: .minY)
+        } else {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        }
         if let window = popover.contentViewController?.view.window {
             KeyAppearance.force(onPopoverWindow: window)
         }
-        // While the app is not active, a transient popover does not notice
-        // clicks into other apps; close it on any click outside.
+        if !countdown {
+            closeOnOutsideClick()
+        }
+    }
+
+    private func endCountdown() {
+        showsCountdown = false
+        popover.behavior = .transient
+        closeOnOutsideClick()
+    }
+
+    /// While the app is not active, a transient popover does not notice
+    /// clicks into other apps; close it on any click outside.
+    private func closeOnOutsideClick() {
+        guard outsideClickMonitor == nil else { return }
         outsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             MainActor.assumeIsolated { self?.popover.performClose(nil) }
         }
@@ -272,5 +307,27 @@ extension StatusItemController: NSPopoverDelegate {
             NSEvent.removeMonitor(outsideClickMonitor)
         }
         outsideClickMonitor = nil
+        showsCountdown = false
+        countdownAnchor.orderOut(nil)
     }
+}
+
+/// A transparent window over the menu bar item for the countdown popover to
+/// hang from. Clicks pass through to the item; it never takes the keyboard.
+private final class AnchorPanel: NSPanel {
+    init() {
+        super.init(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: true)
+        level = .statusBar
+        collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
+        backgroundColor = .clear
+        isOpaque = false
+        hasShadow = false
+        ignoresMouseEvents = true
+        hidesOnDeactivate = false
+        isReleasedWhenClosed = false
+        animationBehavior = .none
+    }
+
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
 }
