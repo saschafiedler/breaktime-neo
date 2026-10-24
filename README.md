@@ -25,7 +25,9 @@ BreakTime Neo brings it to current Macs. Where it made sense, it works and looks
 
 ## Install
 
-There are no signed releases yet. Until there are, build it yourself:
+Download `BreakTime-Neo-<version>.zip` from the [latest release](https://github.com/saschafiedler/breaktime-neo/releases/latest), unzip it and move `BreakTime Neo.app` to the Applications folder. The app is signed with a Developer ID and notarised by Apple, so it opens without warnings. Open the settings with the gear button in the panel if you want it to start at login.
+
+You can also build it yourself:
 
 ```bash
 git clone https://github.com/saschafiedler/breaktime-neo.git BreakTimeNeo
@@ -33,7 +35,7 @@ cd BreakTimeNeo
 scripts/install-local.sh
 ```
 
-The script builds a release version, copies `BreakTime Neo.app` to `/Applications` and starts it. Open the settings with the gear button in the panel if you want it to start at login.
+The script builds a release version, copies `BreakTime Neo.app` to `/Applications` and starts it.
 
 ## Development
 
