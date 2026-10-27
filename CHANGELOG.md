@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.1.0] - 2026-10-27
 
 ### Added
 
@@ -29,6 +29,6 @@ All notable changes to this project are documented here. The format follows [Kee
 - English and German, following the system language.
 - Liquid Glass app icon.
 
-[Unreleased]: https://github.com/saschafiedler/breaktime-neo/compare/v1.0.1...HEAD
+[1.1.0]: https://github.com/saschafiedler/breaktime-neo/releases/tag/v1.1.0
 [1.0.1]: https://github.com/saschafiedler/breaktime-neo/releases/tag/v1.0.1
 [1.0.0]: https://github.com/saschafiedler/breaktime-neo/releases/tag/v1.0.0
