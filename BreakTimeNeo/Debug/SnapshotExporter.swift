@@ -36,13 +36,14 @@ enum SnapshotExporter {
         ]
         for example in examples {
             let controller = BreakController(settings: snapshotSettings(), now: start)
+            let updates = UpdateChecker(settings: controller.settings, defaults: snapshotDefaults())
             for (input, offset) in example.inputs {
                 controller.setEngineState(input, at: start + offset)
             }
             let status = controller.status
             report.append("\(example.name): \(StatusLine.text(for: status, now: controller.now))")
             saveIcon(StatusIcon.image(for: status), to: folder, name: "icon-\(example.name)")
-            capture(PopoverView(controller: controller) {}, to: folder, name: "popover-\(example.name)")
+            capture(PopoverView(controller: controller, updates: updates) {}, to: folder, name: "popover-\(example.name)")
             if example.name == "break" {
                 capture(BreakWindowView(controller: controller), to: folder, name: "overlay")
                 controller.settings.enforcesBreak = true
@@ -53,14 +54,27 @@ enum SnapshotExporter {
         }
 
         let controller = BreakController(settings: snapshotSettings(), now: start)
-        capture(SettingsView(settings: controller.settings, controller: controller, showsAdvanced: true), to: folder, name: "settings")
+        let updates = UpdateChecker(settings: controller.settings, defaults: snapshotDefaults())
+        capture(SettingsView(settings: controller.settings, controller: controller, updates: updates, showsAdvanced: true), to: folder, name: "settings")
+
+        // A new version is out: dot on the gear, button in the settings.
+        updates.setAvailableVersion(AppVersion("1.2.0"))
+        controller.setEngineState(.tick(idle: 0), at: start + 5 * 60 + 10)
+        capture(PopoverView(controller: controller, updates: updates) {}, to: folder, name: "popover-update")
+        capture(SettingsView(settings: controller.settings, controller: controller, updates: updates), to: folder, name: "settings-update")
         try? report.joined(separator: "\n").write(to: folder.appending(path: "report.txt"), atomically: true, encoding: .utf8)
     }
 
     private static func snapshotSettings() -> AppSettings {
+        AppSettings(defaults: snapshotDefaults())
+    }
+
+    /// Empty defaults, so stored settings and update checks of the
+    /// installed app do not show up in the snapshots.
+    private static func snapshotDefaults() -> UserDefaults {
         let defaults = UserDefaults(suiteName: "com.saschafiedler.breaktimeneo.snapshots")!
         defaults.removePersistentDomain(forName: "com.saschafiedler.breaktimeneo.snapshots")
-        return AppSettings(defaults: defaults)
+        return defaults
     }
 
     /// Draws the template icon black on white at 4×, as in a light menu bar.

@@ -5,6 +5,7 @@ import SwiftUI
 /// on/off switch, and a slider that moves the next break.
 struct PopoverView: View {
     let controller: BreakController
+    let updates: UpdateChecker
     let openSettings: () -> Void
     /// Seconds while the slider is being dragged; committed on release.
     @State private var draggedSeconds: Double?
@@ -46,10 +47,19 @@ struct PopoverView: View {
                     Button(action: openSettings) {
                         Image(systemName: "gearshape")
                             .font(.title3)
+                            // A new version is out (see S26).
+                            .overlay(alignment: .topTrailing) {
+                                if updates.announcedVersion != nil {
+                                    Circle()
+                                        .fill(.red)
+                                        .frame(width: 6, height: 6)
+                                        .offset(x: 2, y: -1)
+                                }
+                            }
                     }
                     .buttonStyle(.borderless)
-                    .help("Settings")
-                    .accessibilityLabel("Settings")
+                    .help(updates.announcedVersion == nil ? "Settings" : "Settings: a new version is available")
+                    .accessibilityLabel(updates.announcedVersion == nil ? "Settings" : "Settings: a new version is available")
                 }
             }
         }

@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Once a day BreakTime Neo looks on GitHub for a new version. If there is one, a red dot on the gear, an item in the right-click menu and a button in the settings point you to the download page. Nothing is downloaded or installed automatically, and the check can be turned off in the settings.
+
 ## [1.0.1] - 2026-10-23
 
 ### Fixed
@@ -23,5 +29,6 @@ All notable changes to this project are documented here. The format follows [Kee
 - English and German, following the system language.
 - Liquid Glass app icon.
 
+[Unreleased]: https://github.com/saschafiedler/breaktime-neo/compare/v1.0.1...HEAD
 [1.0.1]: https://github.com/saschafiedler/breaktime-neo/releases/tag/v1.0.1
 [1.0.0]: https://github.com/saschafiedler/breaktime-neo/releases/tag/v1.0.0

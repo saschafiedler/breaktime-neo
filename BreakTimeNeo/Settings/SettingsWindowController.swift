@@ -5,16 +5,18 @@ import SwiftUI
 /// Dock icon, so it has to activate itself for the window to get focus.
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let controller: BreakController
+    private let updates: UpdateChecker
     private var window: NSWindow?
 
-    init(controller: BreakController) {
+    init(controller: BreakController, updates: UpdateChecker) {
         self.controller = controller
+        self.updates = updates
         super.init()
     }
 
     func show() {
         if window == nil {
-            let content = NSHostingController(rootView: SettingsView(settings: controller.settings, controller: controller))
+            let content = NSHostingController(rootView: SettingsView(settings: controller.settings, controller: controller, updates: updates))
             let window = NSWindow(contentViewController: content)
             window.title = String(localized: "Settings")
             window.styleMask = [.titled, .closable]

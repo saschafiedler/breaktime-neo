@@ -7,6 +7,7 @@ import SwiftUI
 /// with extra actions.
 final class StatusItemController: NSObject {
     private let controller: BreakController
+    private let updates: UpdateChecker
     private let openSettings: () -> Void
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let popover = NSPopover()
@@ -20,12 +21,13 @@ final class StatusItemController: NSObject {
     /// What the countdown popover hangs from instead of the menu bar item.
     private let countdownAnchor = AnchorPanel()
 
-    init(controller: BreakController, openSettings: @escaping () -> Void) {
+    init(controller: BreakController, updates: UpdateChecker, openSettings: @escaping () -> Void) {
         self.controller = controller
+        self.updates = updates
         self.openSettings = openSettings
         super.init()
 
-        let content = NSHostingController(rootView: PopoverView(controller: controller) { [weak self] in
+        let content = NSHostingController(rootView: PopoverView(controller: controller, updates: updates) { [weak self] in
             self?.popover.performClose(nil)
             openSettings()
         })
@@ -215,6 +217,11 @@ final class StatusItemController: NSObject {
         }
 
         menu.addItem(.separator())
+        if let version = updates.announcedVersion {
+            menu.addItem(actions.item(String(localized: "Download Version \(version.description)")) {
+                NSWorkspace.shared.open(AppInfo.latestReleasePage)
+            })
+        }
         menu.addItem(actions.item(String(localized: "Settings…")) { [openSettings] in openSettings() })
         menu.addItem(actions.item(String(localized: "Quit \(AppInfo.name)")) { NSApp.terminate(nil) })
 

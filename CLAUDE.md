@@ -24,7 +24,7 @@ BreakTimeNeo/              App target (folder synchronised with Xcode: new files
   Menu/                    Status item, popover, stopwatch icon, KeyAppearance
   Overlay/                 Break screen: dimming panels and the glass break window
   Settings/                Settings window
-  System/                  Idle, sleep and lock detection; system sounds
+  System/                  Idle, sleep and lock detection; system sounds; update check
   Debug/                   Snapshot export, Debug builds only
   AppIcon.icon             Icon Composer app icon
   Localizable.xcstrings    German translations
@@ -67,7 +67,8 @@ Check the string catalog after a build: every key in the `*.stringsdata` files u
 Launch arguments (Debug builds):
 
 - `--demo`: fast rhythm (40 s work, 15 s break, away after 30 s), stores nothing. It dims the real screen, so quit it afterwards with `pkill -x "BreakTime Neo"`.
-- `--snapshots <folder>`: writes PNGs of the menu bar icon and popover in every state, the break window and the settings, plus `report.txt`, then quits. Needs no screen-recording permission. Glass effects do not render there.
+- `--snapshots <folder>`: writes PNGs of the menu bar icon and popover in every state, the break window and the settings (also with a new version available), plus `report.txt`, then quits. Needs no screen-recording permission. Glass effects do not render there.
+- `--update-as <version>`: the app takes itself for that version, so “Check Now” in the settings shows the hint for the latest release on GitHub.
 
 Installing for daily use: `scripts/install-local.sh` (builds a Release and copies it to `/Applications`).
 
@@ -83,6 +84,8 @@ scripts/release.sh 1.0.1 --publish  # create the release on Forgejo and GitHub w
 ```
 
 The script needs a "Developer ID Application" certificate, the notarytool keychain profile `notary`, and `tea` (login `forgejo`) and `gh` signed in. The maintainer tries the zip before publishing.
+
+Installed apps read the latest release on GitHub once a day and compare its tag with their own version (S26). So tags stay `vX.Y.Z` and match `MARKETING_VERSION`, and publishing on GitHub is the moment every user gets told about the new version. Pre-releases on GitHub are not announced.
 
 ## Do not
 

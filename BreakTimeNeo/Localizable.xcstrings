@@ -31,6 +31,16 @@
         }
       }
     },
+    "%@ is up to date": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ist aktuell"
+          }
+        }
+      }
+    },
     "A playing video counts as activity": {
       "localizations": {
         "de": {
@@ -111,6 +121,26 @@
         }
       }
     },
+    "Check Now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt prüfen"
+          }
+        }
+      }
+    },
+    "Checking…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird geprüft …"
+          }
+        }
+      }
+    },
     "Close": {
       "localizations": {
         "de": {
@@ -127,6 +157,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kopieren"
+          }
+        }
+      }
+    },
+    "Could not check for a new version": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konnte nicht nach einer neuen Version suchen"
           }
         }
       }
@@ -167,6 +207,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fertig"
+          }
+        }
+      }
+    },
+    "Download Version %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@ herunterladen"
           }
         }
       }
@@ -287,6 +337,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Länge der Pause:"
+          }
+        }
+      }
+    },
+    "Looks for a new version on GitHub once a day": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sucht einmal täglich auf GitHub nach einer neuen Version"
           }
         }
       }
@@ -421,6 +481,16 @@
         }
       }
     },
+    "Settings: a new version is available": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen: Eine neue Version ist verfügbar"
+          }
+        }
+      }
+    },
     "Settings…": {
       "localizations": {
         "de": {
@@ -547,6 +617,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bis morgen früh"
+          }
+        }
+      }
+    },
+    "Updates:": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates:"
           }
         }
       }

@@ -38,6 +38,7 @@ BreakTime Neo re-creates the behaviour of BreakTime by Excited Pixel without usi
 | F13 | A playing video counts as activity | Own idea | Power assertions read through IOKit. |
 | F14 | Break on the main display only | Own idea | Setting “All displays”. |
 | F15 | Non-linear sliders with seconds | Own idea | Power curve (`PowerScale`). |
+| F16 | Notice of a new version | Own idea | Latest release from GitHub's API once a day; points to the release page, installs nothing. |
 
 ## What the website says (read 2026-10-22, in own words)
 

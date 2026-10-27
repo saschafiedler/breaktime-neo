@@ -16,6 +16,7 @@ BreakTime Neo brings it to current Macs. Where it made sense, it works and looks
 - During a break the screen dims a little and a small glass window shows how long you've been resting and how long is left. "In a Minute" (⎋) pushes the break back, ⇧⎋ gives you five minutes and ⇧⌘⎋ fifteen. "Done" ends it.
 - If you've been away long enough (no input, screen locked, Mac asleep), the countdown starts over when you come back. A playing video counts as activity, so watching a film doesn't reset it.
 - You can also enforce breaks (with an emergency exit, ⌃⌥⌘⎋), dim every display or only the main one, turn sounds on or off, and start at login.
+- Once a day it asks GitHub whether there is a new version. If there is, a red dot on the gear and a button in the settings point you to the download page; nothing is downloaded or installed by itself. The request carries nothing about you, but like any web request it reaches GitHub with your IP address. You can turn the check off in the settings.
 
 ## Requirements
 

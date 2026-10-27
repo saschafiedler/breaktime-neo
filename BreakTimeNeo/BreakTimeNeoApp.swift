@@ -5,8 +5,9 @@ import AppKit
 @main
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let controller = BreakController(settings: AppSettings(launchArguments: ProcessInfo.processInfo.arguments))
+    private lazy var updates = UpdateChecker(settings: controller.settings, launchArguments: ProcessInfo.processInfo.arguments)
     private var statusItem: StatusItemController?
-    private lazy var settingsWindow = SettingsWindowController(controller: controller)
+    private lazy var settingsWindow = SettingsWindowController(controller: controller, updates: updates)
 
     static func main() {
         let app = NSApplication.shared
@@ -24,10 +25,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         #endif
-        statusItem = StatusItemController(controller: controller) { [weak self] in
+        statusItem = StatusItemController(controller: controller, updates: updates) { [weak self] in
             self?.showSettings()
         }
         controller.start()
+        updates.start()
     }
 
     @objc func showSettings() {

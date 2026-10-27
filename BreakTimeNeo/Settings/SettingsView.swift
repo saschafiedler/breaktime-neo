@@ -8,6 +8,7 @@ import SwiftUI
 struct SettingsView: View {
     @Bindable var settings: AppSettings
     let controller: BreakController
+    let updates: UpdateChecker
     @State var showsAdvanced = false
 
     var body: some View {
@@ -74,6 +75,11 @@ struct SettingsView: View {
                     label("Play sounds:")
                     Toggle("Play sounds:", isOn: $settings.playSounds)
                         .labelsHidden()
+                }
+                GridRow {
+                    label("Updates:")
+                        .gridCellAnchor(.topTrailing)
+                    UpdateControl(settings: settings, updates: updates)
                 }
 
                 GridRow {
@@ -215,6 +221,56 @@ private struct DurationControl: View {
             // Fixed width, so both sliders end at the same place.
             Text(shown.inMinutes ? "Minutes" : "Seconds")
                 .frame(width: 72, alignment: .leading)
+        }
+    }
+}
+
+/// Automatic checks for a new version, a button to check now and its
+/// result. A new version shows as a button that opens its download page in
+/// the browser (see S26 in docs/DECISIONS.md).
+private struct UpdateControl: View {
+    @Bindable var settings: AppSettings
+    let updates: UpdateChecker
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Toggle(isOn: $settings.checksForUpdates) {
+                Text("Looks for a new version on GitHub once a day")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                if let version = updates.availableVersion {
+                    Button("Download Version \(version.description)") {
+                        NSWorkspace.shared.open(AppInfo.latestReleasePage)
+                    }
+                    .buttonStyle(.borderedProminent)
+                } else {
+                    Button("Check Now") {
+                        updates.checkNow()
+                    }
+                    .disabled(updates.isChecking)
+                    result
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var result: some View {
+        if updates.isChecking {
+            Text("Checking…")
+        } else {
+            switch updates.lastResult {
+            case .upToDate:
+                Text("\(AppInfo.name) is up to date")
+            case .failed:
+                Text("Could not check for a new version")
+            case nil:
+                EmptyView()
+            }
         }
     }
 }

@@ -22,6 +22,8 @@ final class AppSettings {
     var forbidsPostponeWhenEnforced: Bool { didSet { save(forbidsPostponeWhenEnforced, for: .forbidsPostponeWhenEnforced) } }
     /// A playing video (an app keeps the display awake) counts as presence.
     var videoCountsAsPresence: Bool { didSet { save(videoCountsAsPresence, for: .videoCountsAsPresence) } }
+    /// Looks for a new version on GitHub once a day (see S26).
+    var checksForUpdates: Bool { didSet { save(checksForUpdates, for: .checksForUpdates) } }
 
     /// Called after every change, so the running rhythm can pick it up.
     @ObservationIgnored var onChange: (() -> Void)?
@@ -50,6 +52,7 @@ final class AppSettings {
             Key.videoCountsAsPresence.rawValue: true,
             Key.enforcesBreak.rawValue: false,
             Key.forbidsPostponeWhenEnforced.rawValue: false,
+            Key.checksForUpdates.rawValue: true,
         ])
         workInterval = isDemo ? 40 : defaults.integer(forKey: Key.workInterval.rawValue)
         breakDuration = isDemo ? 15 : defaults.integer(forKey: Key.breakDuration.rawValue)
@@ -62,6 +65,7 @@ final class AppSettings {
         videoCountsAsPresence = defaults.bool(forKey: Key.videoCountsAsPresence.rawValue)
         enforcesBreak = defaults.bool(forKey: Key.enforcesBreak.rawValue)
         forbidsPostponeWhenEnforced = defaults.bool(forKey: Key.forbidsPostponeWhenEnforced.rawValue)
+        checksForUpdates = defaults.bool(forKey: Key.checksForUpdates.rawValue)
     }
 
     /// Whether the break window offers "one more minute".
@@ -81,6 +85,7 @@ final class AppSettings {
         case workInterval, breakDuration, warningEnabled
         case detectsIdle, awayThreshold, playSounds, showsTimeInMenuBar
         case dimsAllDisplays, videoCountsAsPresence, enforcesBreak, forbidsPostponeWhenEnforced
+        case checksForUpdates
     }
 
     private func save(_ value: Any, for key: Key) {
